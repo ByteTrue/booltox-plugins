@@ -14,8 +14,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@booltox/plugin-sdk": ["../../../BoolTox/packages/plugin-sdk/src"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],

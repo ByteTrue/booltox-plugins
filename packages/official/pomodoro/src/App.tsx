@@ -1,39 +1,93 @@
 import { useState, useEffect } from 'react';
-import { useBackend, useBackendEvent, useWindowTitle } from '@booltox/plugin-sdk';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+// 声明全局 window.booltox API
+declare global {
+  interface Window {
+    booltox?: {
+      backend: {
+        register: () => Promise<{ channelId: string }>;
+        call: (
+          channelId: string,
+          method: string,
+          params?: any,
+          timeout?: number
+        ) => Promise<any>;
+        notify: (channelId: string, method: string, params?: any) => Promise<void>;
+        on: (
+          channelId: string,
+          event: string,
+          listener: (data: any) => void
+        ) => () => void;
+        off: (channelId: string, event: string, listener?: (data: any) => void) => void;
+        isReady: (channelId: string) => boolean;
+        waitForReady: (channelId: string, timeout?: number) => Promise<void>;
+      };
+      window: {
+        setTitle: (title: string) => Promise<void>;
+      };
+    };
+  }
+}
 
 export default function App() {
   const [remaining, setRemaining] = useState(25 * 60); // 25 分钟
   const [isRunning, setIsRunning] = useState(false);
   const [duration] = useState(25 * 60);
+  const [channelId, setChannelId] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const { backend, isConnected, isConnecting } = useBackend();
+  // 连接后端
+  useEffect(() => {
+    async function connectBackend() {
+      try {
+        if (!window.booltox) {
+          throw new Error('Booltox API not available');
+        }
 
-  // 设置窗口标题
-  useWindowTitle('番茄钟');
+        // 注册后端
+        const handle = await window.booltox.backend.register();
+        setChannelId(handle.channelId);
 
-  // 监听后端事件
-  useBackendEvent(backend, '$event', (data: any) => {
-    if (data.type === 'tick') {
-      setRemaining(data.remaining);
-    } else if (data.type === 'complete') {
-      setIsRunning(false);
-    } else if (data.type === 'reset') {
-      setRemaining(data.remaining);
+        // 等待就绪
+        await window.booltox.backend.waitForReady(handle.channelId, 10000);
+
+        // 设置窗口标题
+        await window.booltox.window.setTitle('番茄钟');
+
+        // 监听后端事件
+        window.booltox.backend.on(handle.channelId, '$event', (data: any) => {
+          if (data.type === 'tick') {
+            setRemaining(data.remaining);
+          } else if (data.type === 'complete') {
+            setIsRunning(false);
+          } else if (data.type === 'reset') {
+            setRemaining(data.remaining);
+          }
+        });
+
+        setIsConnecting(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Connection failed');
+        setIsConnecting(false);
+      }
     }
-  });
+
+    connectBackend();
+  }, []);
 
   // 开始/暂停
   const handleToggle = async () => {
-    if (!backend) return;
+    if (!channelId || !window.booltox) return;
 
     try {
       if (isRunning) {
-        await backend.call('pause');
+        await window.booltox.backend.call(channelId, 'pause');
         setIsRunning(false);
       } else {
-        await backend.call('start');
+        await window.booltox.backend.call(channelId, 'start');
         setIsRunning(true);
       }
     } catch (error) {
@@ -43,10 +97,10 @@ export default function App() {
 
   // 重置
   const handleReset = async () => {
-    if (!backend) return;
+    if (!channelId || !window.booltox) return;
 
     try {
-      await backend.call('reset');
+      await window.booltox.backend.call(channelId, 'reset');
       setIsRunning(false);
       setRemaining(duration);
     } catch (error) {
@@ -72,10 +126,10 @@ export default function App() {
     );
   }
 
-  if (!isConnected) {
+  if (error) {
     return (
       <div className="app">
-        <div className="error">后端连接失败</div>
+        <div className="error">{error}</div>
       </div>
     );
   }
