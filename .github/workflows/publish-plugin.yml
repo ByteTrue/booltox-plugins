@@ -1,0 +1,78 @@
+name: Publish Plugin
+
+on:
+  push:
+    tags:
+      - '*-v*'  # 匹配 pomodoro-v1.0.0 等格式
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Extract plugin info from tag
+        id: tag
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          PLUGIN=$(echo $TAG | cut -d'-' -f1)
+          VERSION=$(echo $TAG | cut -d'-' -f2 | sed 's/^v//')
+          echo "plugin=$PLUGIN" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build plugin
+        run: |
+          cd packages/official/${{ steps.tag.outputs.plugin }}
+          pnpm build
+
+      - name: Package plugin
+        run: |
+          cd packages/official/${{ steps.tag.outputs.plugin }}
+          zip -r ${{ steps.tag.outputs.plugin }}-${{ steps.tag.outputs.version }}.zip dist/ manifest.json package.json backend/ requirements.txt 2>/dev/null || true
+
+      - name: Calculate hash
+        id: hash
+        run: |
+          cd packages/official/${{ steps.tag.outputs.plugin }}
+          HASH=$(shasum -a 256 ${{ steps.tag.outputs.plugin }}-${{ steps.tag.outputs.version }}.zip | awk '{print $1}')
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: packages/official/${{ steps.tag.outputs.plugin }}/${{ steps.tag.outputs.plugin }}-${{ steps.tag.outputs.version }}.zip
+          body: |
+            Plugin: ${{ steps.tag.outputs.plugin }}
+            Version: ${{ steps.tag.outputs.version }}
+            SHA-256: ${{ steps.hash.outputs.hash }}
+
+      - name: Update registry
+        run: |
+          node scripts/update-registry.js \
+            --plugin ${{ steps.tag.outputs.plugin }} \
+            --version ${{ steps.tag.outputs.version }} \
+            --hash ${{ steps.hash.outputs.hash }}
+
+      - name: Commit registry update
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add plugins/
+          git commit -m "chore: update registry for ${{ steps.tag.outputs.plugin }}@${{ steps.tag.outputs.version }}" || true
+          git push origin main || true
