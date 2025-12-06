@@ -1,0 +1,71 @@
+{
+  "id": "com.booltox.pomodoro",
+  "name": "番茄钟",
+  "version": "1.0.0",
+  "description": "基于番茄工作法的时间管理工具，帮助你保持专注，提高工作效率。",
+  "longDescription": "番茄钟是一个基于番茄工作法的时间管理工具。它将工作时间分为25分钟的专注时段，中间穿插短暂的休息时间。通过这种方式，帮助你保持高度专注，避免疲劳，提高工作效率。\n\n**主要功能**：\n- ⏱️ 25分钟专注计时\n- 🔔 系统通知提醒\n- ⏸️ 暂停和继续\n- 🔄 一键重置\n- 📊 简洁美观的界面\n\n**使用建议**：\n1. 选择一个任务\n2. 启动番茄钟\n3. 专注工作25分钟\n4. 休息5分钟\n5. 重复步骤2-4\n\n每完成4个番茄钟，建议休息15-30分钟。",
+  "author": {
+    "name": "BoolTox Team",
+    "email": "team@booltox.com",
+    "url": "https://github.com/ByteTrue/booltox-plugins"
+  },
+  "category": "productivity",
+  "keywords": ["timer", "focus", "productivity", "pomodoro", "时间管理", "专注"],
+  "verified": true,
+  "license": "MIT",
+  "homepage": "https://github.com/ByteTrue/booltox-plugins/tree/main/packages/official/pomodoro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ByteTrue/booltox-plugins.git",
+    "directory": "packages/official/pomodoro"
+  },
+  "bugs": "https://github.com/ByteTrue/booltox-plugins/issues",
+  "changelog": "https://github.com/ByteTrue/booltox-plugins/blob/main/packages/official/pomodoro/CHANGELOG.md",
+  "releases": [
+    {
+      "version": "1.0.0",
+      "date": "2025-12-06",
+      "downloadUrl": "https://raw.githubusercontent.com/ByteTrue/booltox-plugins/main/plugins/official/pomodoro/releases/pomodoro-1.0.0.zip",
+      "sha256": "",
+      "size": 0,
+      "changes": [
+        "🎉 首次发布",
+        "✨ 基础番茄钟功能",
+        "🔔 系统通知支持",
+        "🎨 美观的 UI 设计"
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "url": "https://raw.githubusercontent.com/ByteTrue/booltox-plugins/main/plugins/official/pomodoro/screenshots/main.png",
+      "title": "主界面",
+      "description": "番茄钟主界面，显示倒计时和控制按钮"
+    }
+  ],
+  "requirements": {
+    "python": ">=3.12",
+    "platform": ["darwin", "win32", "linux"]
+  },
+  "permissions": [
+    "backend.register",
+    "backend.message",
+    "python.run",
+    "storage.get",
+    "storage.set",
+    "window.show",
+    "window.setTitle"
+  ],
+  "stats": {
+    "downloads": 0,
+    "rating": 4.8,
+    "reviews": 0,
+    "stars": 0,
+    "forks": 0,
+    "watchers": 0
+  },
+  "tags": ["official", "featured", "recommended"],
+  "status": "stable",
+  "createdAt": "2025-12-06T00:00:00Z",
+  "updatedAt": "2025-12-06T06:53:00Z"
+}

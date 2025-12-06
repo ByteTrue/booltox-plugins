@@ -1,5 +1,62 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2025-12-05T00:00:00Z",
-  "plugins": []
+  "updated": "2025-12-06T06:53:00Z",
+  "plugins": [
+    {
+      "id": "com.booltox.pomodoro",
+      "name": "番茄钟",
+      "version": "1.0.0",
+      "author": "BoolTox Team",
+      "description": "基于番茄工作法的时间管理工具，支持系统通知提醒",
+      "category": "productivity",
+      "keywords": ["timer", "focus", "productivity", "pomodoro"],
+      "verified": true,
+      "icon": "https://raw.githubusercontent.com/ByteTrue/booltox-plugins/main/plugins/official/pomodoro/icon.png",
+      "homepage": "https://github.com/ByteTrue/booltox-plugins",
+      "repository": "https://github.com/ByteTrue/booltox-plugins",
+      "downloadUrl": "https://raw.githubusercontent.com/ByteTrue/booltox-plugins/main/plugins/official/pomodoro/releases/pomodoro-1.0.0.zip",
+      "sha256": "",
+      "size": 0,
+      "stats": {
+        "downloads": 0,
+        "rating": 4.8,
+        "reviews": 0,
+        "stars": 0
+      },
+      "createdAt": "2025-12-06T00:00:00Z",
+      "updatedAt": "2025-12-06T06:53:00Z",
+      "screenshots": [
+        "https://raw.githubusercontent.com/ByteTrue/booltox-plugins/main/plugins/official/pomodoro/screenshots/main.png"
+      ],
+      "requirements": {
+        "python": ">=3.12"
+      }
+    }
+  ],
+  "categories": [
+    {
+      "id": "productivity",
+      "name": "生产力",
+      "description": "提高工作效率的工具",
+      "icon": "📊"
+    },
+    {
+      "id": "development",
+      "name": "开发工具",
+      "description": "编程和开发相关工具",
+      "icon": "💻"
+    },
+    {
+      "id": "utility",
+      "name": "实用工具",
+      "description": "日常使用的实用工具",
+      "icon": "🔧"
+    },
+    {
+      "id": "entertainment",
+      "name": "娱乐",
+      "description": "休闲娱乐工具",
+      "icon": "🎮"
+    }
+  ]
 }
