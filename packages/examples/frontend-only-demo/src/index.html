@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>密码生成器</title>
+</head>
+<body>
+  <div class="app">
+    <!-- 标题 -->
+    <header class="header">
+      <h1>🔐 密码生成器</h1>
+      <p>安全、强大、易用的密码生成工具</p>
+    </header>
+
+    <!-- 密码显示区 -->
+    <div class="card">
+      <div class="password-display">
+        <div id="password-text" class="password-text empty">点击生成密码</div>
+
+        <div class="strength-indicator">
+          <div class="strength-bar">
+            <div id="strength-fill" class="strength-fill" style="width: 0%"></div>
+          </div>
+          <div class="strength-info">
+            <span id="strength-label" class="strength-label">-</span>
+            <span id="strength-entropy">熵值: 0 bits</span>
+          </div>
+          <div class="strength-info">
+            <span id="strength-crack-time">破解时间: -</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="generate-btn" class="btn btn-primary">
+          ⚡ 生成密码
+        </button>
+        <button id="copy-btn" class="btn btn-secondary" disabled>
+          📋 复制
+        </button>
+        <button id="passphrase-btn" class="btn btn-secondary">
+          📝 密码短语
+        </button>
+      </div>
+    </div>
+
+    <!-- 配置选项 -->
+    <div class="card">
+      <h3 class="card-title">⚙️ 配置选项</h3>
+
+      <!-- 长度滑块 -->
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="form-label">密码长度</label>
+          <span id="length-value" class="slider-value">12</span>
+        </div>
+        <input
+          type="range"
+          id="length-slider"
+          class="slider"
+          min="4"
+          max="128"
+          value="12"
+        >
+      </div>
+
+      <!-- 字符类型 -->
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="uppercase" checked>
+          <label for="uppercase">大写字母 (A-Z)</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="lowercase" checked>
+          <label for="lowercase">小写字母 (a-z)</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="numbers" checked>
+          <label for="numbers">数字 (0-9)</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="symbols" checked>
+          <label for="symbols">特殊符号</label>
+        </div>
+      </div>
+
+      <!-- 高级选项 -->
+      <div class="form-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="exclude-ambiguous" checked>
+          <label for="exclude-ambiguous">排除易混淆字符 (0/O, 1/l/I)</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="custom-exclude">自定义排除字符</label>
+        <input
+          type="text"
+          id="custom-exclude"
+          class="form-input"
+          placeholder="例如: @#$"
+        >
+      </div>
+    </div>
+
+    <!-- 预设模板 -->
+    <div class="card">
+      <h3 class="card-title">📋 预设模板</h3>
+      <div id="presets-container" class="presets"></div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 class="card-title" style="margin: 0;">📜 历史记录</h3>
+        <button id="clear-history-btn" class="btn btn-secondary" style="padding: 8px 16px; font-size: 12px;">
+          🗑️ 清空
+        </button>
+      </div>
+      <div id="history-list" class="history-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/main.ts"></script>
+</body>
+</html>

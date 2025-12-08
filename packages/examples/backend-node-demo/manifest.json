@@ -1,0 +1,31 @@
+{
+  "id": "com.booltox.backend-node-demo",
+  "version": "2.0.0",
+  "name": "正则表达式测试器",
+  "description": "基于 Node.js 后端的专业正则调试器，支持 JSON-RPC、超时保护、模板库、历史记录与实时高亮",
+  "protocol": "^2.0.0",
+  "runtime": {
+    "ui": {
+      "type": "webview",
+      "entry": "dist/index.html"
+    },
+    "backend": {
+      "type": "node",
+      "entry": "backend/dist/server.cjs"
+    }
+  },
+  "permissions": [
+    "backend.register",
+    "backend.message",
+    "clipboard.write"
+  ],
+  "window": {
+    "width": 1200,
+    "height": 820,
+    "minWidth": 900,
+    "minHeight": 640,
+    "resizable": true
+  },
+  "author": "BoolTox Team",
+  "keywords": ["regex", "backend", "node", "tester", "json-rpc"]
+}

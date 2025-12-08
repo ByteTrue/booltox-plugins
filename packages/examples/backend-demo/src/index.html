@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系统信息监控</title>
+</head>
+<body>
+  <div class="app">
+    <!-- 标题 -->
+    <header class="header">
+      <h1>📊 系统信息监控</h1>
+      <p>实时监控系统 CPU、内存、磁盘和进程信息</p>
+    </header>
+
+    <!-- 状态和控制 -->
+    <div class="status">
+      <div id="status-dot" class="status-dot"></div>
+      <span id="status-label">后端未启动</span>
+    </div>
+
+    <div class="button-group">
+      <button id="start-btn" class="btn btn-primary" disabled>
+        ▶️ 开始监控
+      </button>
+      <button id="stop-btn" class="btn btn-danger" disabled>
+        ⏸️ 停止监控
+      </button>
+      <button id="refresh-btn" class="btn btn-secondary" disabled>
+        🔄 刷新数据
+      </button>
+    </div>
+
+    <!-- 系统概览 -->
+    <div class="card">
+      <h3 class="card-title">💻 系统概览</h3>
+      <div id="system-info">
+        <div class="loading">加载中...</div>
+      </div>
+    </div>
+
+    <!-- CPU 和内存 -->
+    <div class="grid grid-2">
+      <!-- CPU 信息 -->
+      <div class="card">
+        <h3 class="card-title">⚡ CPU 使用率</h3>
+        <div id="cpu-info">
+          <div class="loading">等待数据...</div>
+        </div>
+      </div>
+
+      <!-- 内存信息 -->
+      <div class="card">
+        <h3 class="card-title">💾 内存使用</h3>
+        <div id="memory-info">
+          <div class="loading">等待数据...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 磁盘信息 -->
+    <div class="card">
+      <h3 class="card-title">💿 磁盘使用</h3>
+      <div id="disk-info">
+        <div class="loading">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 进程列表 -->
+    <div class="card">
+      <h3 class="card-title">📋 Top 10 进程 (按 CPU 排序)</h3>
+      <div id="process-list">
+        <div class="loading">等待数据...</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/main.ts"></script>
+</body>
+</html>

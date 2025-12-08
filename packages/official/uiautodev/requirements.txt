@@ -1,0 +1,20 @@
+# uiautodev 核心依赖（使用本地源代码，无需从 PyPI 安装）
+adbutils>=2.8.10,<3
+click>=8.1.7
+pygments>=2
+uiautomator2>=3.2.0,<4
+fastapi>=0.115.12,<1
+pydantic>=2.6
+wdapy>0.2.2,<1
+websockets>=10.4
+Pillow>=9
+construct
+lxml>=6.0.2
+httpx>=0.28.1
+uvicorn>=0.33.0
+rich
+python-multipart>=0.0.18
+
+# 可选：Harmony 设备支持
+# 如需支持 Harmony 设备，取消下行注释
+# hypium>=6.0.7.200,<7.0.0
