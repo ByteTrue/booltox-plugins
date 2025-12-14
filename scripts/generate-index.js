@@ -32,7 +32,7 @@ for (const entry of entries) {
       category: manifest.category || 'utilities',
       keywords: manifest.keywords || [],
       screenshots: manifest.screenshots || [],
-      path: entry, // 相对路径
+      gitPath: entry, // Git 仓库中的路径（用于 GitOps 下载）
     });
 
     console.log(`✅ 加载工具: ${manifest.name} (${manifest.id})`);
