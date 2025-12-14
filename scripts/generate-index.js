@@ -45,7 +45,7 @@ for (const entry of entries) {
 const registry = {
   version: '1.0.0',
   updatedAt: new Date().toISOString(),
-  tools,
+  plugins: tools, // 改为 plugins（与 GitOpsService 一致）
 };
 
 fs.writeFileSync(outputPath, JSON.stringify(registry, null, 2));

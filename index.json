@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2025-12-14T07:15:29.025Z",
-  "tools": [
+  "updatedAt": "2025-12-14T07:33:58.589Z",
+  "plugins": [
     {
       "id": "com.booltox.uiautodev",
       "name": "UI Auto Dev",
