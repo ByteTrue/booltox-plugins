@@ -1,78 +1,59 @@
-# BoolTox Plugins
+# BoolTox 工具仓库
 
-BoolTox 官方和社区插件集合仓库。
+> BoolTox 官方和社区工具集合
 
-## 目录结构
+---
+
+## 📦 仓库结构
 
 ```
 booltox-plugins/
-├── packages/
-│   ├── official/         # 官方插件（严格审核）
-│   ├── community/        # 社区插件（标记"未验证"）
-│   └── examples/         # 示例插件（教学）
-│
-├── plugins/              # GitOps 元数据目录
-│   ├── index.json        # 插件索引
-│   └── official/
-│       └── pomodoro/
-│           ├── metadata.json
-│           ├── icon.png
-│           └── releases/
-│
-└── scripts/              # 自动化脚本
-    ├── update-registry.js
-    └── validate-plugin.js
+├── uiautodev/              # UI 自动化开发工具
+├── index.json              # 工具注册表（自动生成）
+└── README.md               # 说明文档
 ```
 
-## 开发
+---
 
-### 前置要求
+## 🔧 工具清单
 
-- Node.js >= 20
-- pnpm >= 9
+| 工具 ID | 名称 | 类型 | 说明 |
+|---------|------|------|------|
+| com.booltox.uiautodev | UI Auto Dev | standalone | 移动端 UI 自动化检查工具 |
 
-### 安装依赖
+---
 
-```bash
-pnpm install
-```
+## 📖 添加新工具
 
-### 开发插件
+### 目录结构
 
-```bash
-cd packages/official/your-plugin
-pnpm dev
-```
+每个工具必须包含：
+- `manifest.json` - 工具元数据
+- `README.md` - 工具说明
+- 主程序文件（根据类型）
 
-### 构建插件
+### 工具类型
 
-```bash
-cd packages/official/your-plugin
-pnpm build
-```
+#### 1. HTTP Service（推荐）
+工具提供 HTTP 服务，在浏览器中运行。
 
-## 插件分级
+#### 2. Standalone
+工具创建自己的原生窗口（Qt、Tkinter 等）。
 
-### 官方插件（Official）
+#### 3. Binary
+调用系统二进制文件或 CLI 工具。
 
-- ✅ 已通过安全审核
-- ✅ 代码质量保证
-- ✅ 持续维护
-- 显示绿色"已验证"标记
+---
 
-### 社区插件（Community）
+## 🚀 发布流程
 
-- ⚠️ 未经官方安全审核
-- ⚠️ 质量由作者保证
-- 显示黄色"未验证"标记
-- 安装前会有风险提示
+1. 提交工具代码到此仓库
+2. 运行 `node scripts/generate-index.js` 生成 `index.json`
+3. 推送到 GitHub
+4. BoolTox 客户端通过 GitOps 自动同步
 
-### 示例插件（Examples）
+---
 
-- 📚 仅用于教学目的
-- 📚 展示插件开发最佳实践
-- 不会出现在插件市场
+## 📝 许可证
 
-## 许可证
-
-CC-BY-NC-4.0 © ByteTrue
+CC-BY-NC-4.0

@@ -1,0 +1,22 @@
+{
+  "id": "com.booltox.uiautodev",
+  "version": "0.1.0",
+  "name": "UI Auto Dev",
+  "description": "移动端 UI 自动化检查工具，支持 Android/iOS/Harmony 设备的 UI 层级检查、元素定位、XPath 生成等功能",
+  "protocol": "^2.0.0",
+  "author": "codeskyblue",
+  "homepage": "https://uiauto.dev",
+  "repository": "https://github.com/codeskyblue/uiautodev",
+  "runtime": {
+    "type": "http-service",
+    "backend": {
+      "type": "python",
+      "entry": "backend/main.py",
+      "requirements": "requirements.txt",
+      "port": 20242,
+      "host": "127.0.0.1"
+    },
+    "path": "/",
+    "readyTimeout": 30000
+  }
+}

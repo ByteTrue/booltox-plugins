@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://127.0.0.1:20242; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://127.0.0.1:20242; style-src 'self' 'unsafe-inline' http://127.0.0.1:20242; img-src 'self' data: http://127.0.0.1:20242; connect-src 'self' http://127.0.0.1:20242; frame-src http://127.0.0.1:20242;">
+  <title>UI Auto Dev</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    /* 加载状态容器 */
+    #loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e2e8f0;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(99, 102, 241, 0.3);
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #94a3b8;
+    }
+    
+    .loading-subtitle {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #64748b;
+    }
+    
+    /* 错误状态 */
+    #error {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e2e8f0;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .error-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    
+    .error-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #f87171;
+      margin-bottom: 12px;
+    }
+    
+    .error-message {
+      font-size: 14px;
+      color: #94a3b8;
+      max-width: 400px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .retry-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+    
+    /* iframe 容器 */
+    #app-frame {
+      display: none;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    /* 日志面板（调试用，默认隐藏） */
+    #log-panel {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 150px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #10b981;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 12px;
+      padding: 10px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <!-- 加载状态 -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">正在启动 UI Auto Dev 服务...</div>
+    <div class="loading-subtitle">首次启动可能需要下载前端资源</div>
+  </div>
+  
+  <!-- 错误状态 -->
+  <div id="error">
+    <div class="error-icon">⚠️</div>
+    <div class="error-title">服务启动失败</div>
+    <div class="error-message" id="error-msg">无法连接到 uiautodev 服务，请检查依赖是否安装正确。</div>
+    <button class="retry-btn" onclick="retryStart()">重试</button>
+  </div>
+  
+  <!-- 主应用 iframe -->
+  <iframe id="app-frame" allow="cross-origin-isolated"></iframe>
+  
+  <!-- 日志面板 -->
+  <div id="log-panel"></div>
+
+  <script>
+    const UIAUTODEV_URL = 'http://127.0.0.1:20242';
+
+    let channelId = null;
+    let serverReady = false;
+    let isDisposed = false;  // 跟踪 backend/窗口是否已销毁
+    let statusCheckTimer = null;  // 状态检查定时器
+    let eventCleanups = [];  // 事件清理函数列表
+
+    const loadingEl = document.getElementById('loading');
+    const errorEl = document.getElementById('error');
+    const errorMsgEl = document.getElementById('error-msg');
+    const frameEl = document.getElementById('app-frame');
+    const logPanelEl = document.getElementById('log-panel');
+    
+    // 显示日志（按 Ctrl+Shift+L 切换）
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+        logPanelEl.style.display = logPanelEl.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+    
+    function log(msg, level = 'info') {
+      const time = new Date().toLocaleTimeString();
+      const color = level === 'error' ? '#f87171' : level === 'warn' ? '#fbbf24' : '#10b981';
+      logPanelEl.innerHTML += `<div style="color:${color}">[${time}] ${msg}</div>`;
+      logPanelEl.scrollTop = logPanelEl.scrollHeight;
+      console.log(`[UIAutoDev] ${msg}`);
+    }
+
+    // 安全的 backend 调用包装，避免在销毁后调用
+    async function safeBackendCall(method, params = {}) {
+      if (isDisposed || !channelId) {
+        log(`跳过 backend 调用 ${method}: 已销毁或未初始化`, 'warn');
+        return null;
+      }
+      try {
+        return await window.booltox.backend.call(channelId, method, params);
+      } catch (e) {
+        // 检查是否是 channel 已销毁的错误
+        if (e.message?.includes('not found') || e.message?.includes('destroyed')) {
+          log(`Backend channel 已失效: ${e.message}`, 'warn');
+          isDisposed = true;
+          return null;
+        }
+        throw e;
+      }
+    }
+
+    // 清理所有资源
+    function cleanup() {
+      isDisposed = true;
+      if (statusCheckTimer) {
+        clearTimeout(statusCheckTimer);
+        statusCheckTimer = null;
+      }
+      // 移除所有事件监听
+      eventCleanups.forEach(fn => {
+        try { fn(); } catch (e) { /* ignore */ }
+      });
+      eventCleanups = [];
+    }
+    
+    function showError(msg) {
+      loadingEl.style.display = 'none';
+      frameEl.style.display = 'none';
+      errorMsgEl.textContent = msg;
+      errorEl.style.display = 'flex';
+    }
+    
+    function showApp(url) {
+      loadingEl.style.display = 'none';
+      errorEl.style.display = 'none';
+      frameEl.src = url;
+      frameEl.style.display = 'block';
+    }
+    
+    async function retryStart() {
+      errorEl.style.display = 'none';
+      loadingEl.style.display = 'flex';
+
+      // 如果已销毁或没有 channelId，重新初始化
+      if (isDisposed || !channelId) {
+        isDisposed = false;
+        serverReady = false;
+        init();
+        return;
+      }
+
+      try {
+        const result = await safeBackendCall('restartServer', {});
+        if (result === null) {
+          // backend 已失效，重新初始化
+          isDisposed = false;
+          serverReady = false;
+          init();
+        } else if (result.success) {
+          showApp(result.url);
+        } else {
+          showError('服务重启失败，请检查日志');
+        }
+      } catch (e) {
+        showError(`重启失败: ${e.message}`);
+      }
+    }
+    
+    async function init() {
+      log('初始化工具...');
+
+      if (!window.booltox || !window.booltox.backend) {
+        showError('BoolTox API 不可用，请确保在 BoolTox 客户端中运行');
+        return;
+      }
+
+      // 清理之前的资源（如果有）
+      cleanup();
+      isDisposed = false;
+
+      try {
+        // 注册后端
+        log('注册后端进程...');
+        const handle = await window.booltox.backend.register();
+        channelId = handle.channelId;
+        log(`后端已注册: channelId=${channelId}, pid=${handle.pid}`);
+
+        // 监听后端事件（带清理）
+        const logHandler = (data) => {
+          if (!isDisposed) {
+            log(data.message, data.level);
+          }
+        };
+        window.booltox.backend.on(channelId, 'log', logHandler);
+        eventCleanups.push(() => window.booltox.backend.off?.(channelId, 'log', logHandler));
+
+        const serverReadyHandler = (data) => {
+          if (isDisposed) return;
+          log(`服务就绪事件: success=${data.success}, url=${data.url}`);
+          serverReady = data.success;
+          if (data.success && data.url) {
+            showApp(data.url);
+          } else {
+            showError('uiautodev 服务启动失败，请检查是否已安装 uiautodev 包');
+          }
+        };
+        window.booltox.backend.on(channelId, 'serverReady', serverReadyHandler);
+        eventCleanups.push(() => window.booltox.backend.off?.(channelId, 'serverReady', serverReadyHandler));
+
+        // 监听 backend 销毁事件
+        const disposedHandler = () => {
+          log('Backend 已销毁', 'warn');
+          isDisposed = true;
+        };
+        window.booltox.backend.on(channelId, 'disposed', disposedHandler);
+        eventCleanups.push(() => window.booltox.backend.off?.(channelId, 'disposed', disposedHandler));
+
+        // 等待后端就绪
+        log('等待后端就绪...');
+        await window.booltox.backend.waitForReady(channelId);
+        log('后端已就绪');
+
+        // 如果 30 秒内没有收到 serverReady 事件，尝试主动获取状态
+        statusCheckTimer = setTimeout(async () => {
+          if (!serverReady && !isDisposed) {
+            log('超时未收到 serverReady，主动查询状态...');
+            try {
+              const status = await safeBackendCall('getServerStatus', {});
+              if (status === null) {
+                showError('Backend 已失效，请重试');
+              } else if (status.running) {
+                showApp(status.url);
+              } else {
+                showError('服务启动超时，请重试');
+              }
+            } catch (e) {
+              if (!isDisposed) {
+                showError(`获取状态失败: ${e.message}`);
+              }
+            }
+          }
+        }, 30000);
+
+      } catch (e) {
+        log(`初始化失败: ${e.message}`, 'error');
+        if (!isDisposed) {
+          showError(`初始化失败: ${e.message}`);
+        }
+      }
+    }
+    
+    // 页面卸载时清理
+    window.addEventListener('beforeunload', () => {
+      const currentChannelId = channelId;
+      cleanup();  // 先标记为已销毁，防止其他回调继续执行
+      if (currentChannelId) {
+        try {
+          // 使用同步方式尝试关闭，不等待结果
+          window.booltox.backend.call(currentChannelId, 'shutdown', {}).catch(() => {});
+          window.booltox.backend.dispose(currentChannelId);
+        } catch (e) {
+          // ignore
+        }
+      }
+    });
+    
+    // 启动
+    init();
+  </script>
+</body>
+</html>
