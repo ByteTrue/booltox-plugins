@@ -1,0 +1,8 @@
+{
+  "tools": [
+    {
+      "id": "com.booltox.uiautodev",
+      "path": "uiautodev"
+    }
+  ]
+}
