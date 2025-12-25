@@ -7,7 +7,7 @@
 ## 📦 仓库结构
 
 ```
-booltox-plugins/
+booltox-tools/
 ├── uiautodev/              # UI 自动化开发工具
 │   └── booltox.json        # 工具配置
 ├── booltox-index.json      # 工具索引（自动生成）

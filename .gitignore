@@ -41,6 +41,17 @@ Thumbs.db
 coverage/
 .nyc_output/
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
+
 # Temporary
 tmp/
 temp/
